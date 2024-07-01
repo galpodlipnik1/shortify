@@ -1,7 +1,6 @@
-use axum::{extract::Path, response::IntoResponse, routing::{get, post}, Extension, Router};
-use handlers::{get::GetUrl, post::create_url};
-use handlers::get::{get_url, get_id, get_all, reroute};
-use sqlx::{PgPool, Pool, Postgres};
+use axum::{routing::{get, post}, Extension, Router};
+use handlers::post::create_url;
+use handlers::get::{get_url, get_id, get_all, get_all_key_url,  reroute};
 
 mod handlers;
 mod db;
@@ -30,5 +29,6 @@ fn get_routes() -> Router {
         .route("/getUrl/:id", get(get_url))
         .route("/getId", get(get_id))
         .route("/getAllKeys", get(get_all))
+        .route("/getKeyUrl", get(get_all_key_url))
         .route("/:id", get(reroute))
 }

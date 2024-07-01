@@ -69,3 +69,17 @@ pub async fn get_all_keys(conn: &sqlx::PgPool) -> Result<Vec<String>, Box<dyn Er
     }
     Ok(keys)
 }
+
+pub async fn get_all_key_url(conn: &sqlx::PgPool) -> Result<Vec<(String, String)>, Box<dyn Error>> {
+    let q = "SELECT key, url FROM UrlMapping";
+    let query = query(q);
+
+    let mut rows = query.fetch(conn);
+
+    let mut key_urls = vec![];
+
+    while let Some(row) = rows.try_next().await? {
+        key_urls.push((row.get(0), row.get(1)));
+    }
+    Ok(key_urls)
+}

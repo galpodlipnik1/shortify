@@ -1,4 +1,4 @@
-use axum::{extract::{Path, Query}, http::{self, Response, StatusCode}, response::IntoResponse, Extension, Json};
+use axum::{extract::{Path, Query}, http::{self, StatusCode}, response::IntoResponse, Extension, Json};
 use serde::Deserialize;
 use serde_json::json;
 use sqlx::PgPool;
@@ -53,11 +53,17 @@ pub async fn get_all(Extension(pool): Extension<PgPool>,) -> impl IntoResponse {
     }
 }
 
+pub async fn get_all_key_url(Extension(pool): Extension<PgPool>) -> impl IntoResponse {
+    match db::get_all_key_url(&pool).await {
+        Ok(key_urls) => Json(json!({"success": true, "key_urls": key_urls})),
+        Err(_) => Json(json!({"success": false, "error": "Failed to retrieve key URLs"})),
+    }
+}
+
 pub async fn reroute(
     Path(GetUrl { id }): Path<GetUrl>,
     Extension(pool): Extension<PgPool>
 ) -> impl IntoResponse {
-    // First, check if id is received
     if id.is_none() {
         return (
             StatusCode::BAD_REQUEST,
@@ -82,6 +88,9 @@ pub async fn reroute(
                 "URL not found"
             ).into_response(),
         },
-        Err(_) => todo!(),
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to retrieve URL"
+        ).into_response(),
     }
 }
